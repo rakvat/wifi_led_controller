@@ -32,6 +32,12 @@ loop(Req, DocRoot) ->
                         Hint = "ip address",
                         {ok, HTMLOutput} = register_dtl:render([{format_hint, Hint}]),
                         Req:respond({200, [{"Content-Type", "text/html"}], HTMLOutput});
+                    "on" ->
+                        wifilight_communicator:set_color(Communicator, 255, 255, 255),
+                        Req:respond({200, [{"Content-Type", "text/plain"}], "ok"});
+                    "off" ->
+                        wifilight_communicator:set_color(Communicator, 0, 0, 0),
+                        Req:respond({200, [{"Content-Type", "text/plain"}], "ok"});
                     "red" ->
                         wifilight_communicator:set_color(Communicator, 255, 0, 0),
                         Req:respond({200, [{"Content-Type", "text/plain"}], "ok"});
