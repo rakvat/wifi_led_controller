@@ -42,7 +42,8 @@ upgrade() ->
 %% @doc supervisor callback.
 init([]) ->
     Web = web_specs(wifilight_web, 8080),
-    Processes = [Web],
+    Communicator = communicator_specs(wifilight_communicator),
+    Processes = [Web, Communicator],
     Strategy = {one_for_one, 10, 10},
     {ok,
      {Strategy, lists:flatten(Processes)}}.
@@ -54,3 +55,11 @@ web_specs(Mod, Port) ->
     {Mod,
      {Mod, start, [WebConfig]},
      permanent, 5000, worker, dynamic}.
+
+communicator_specs(Mod) ->
+    % Ip, Port should come from config
+    Port = 5577,
+    Ip = {192,168,1,23},
+    %Ip = {127,0,0,1},
+    {Mod, {Mod, start, [Ip, Port]}, 
+     permanent,  5000, worker, dynamic}.

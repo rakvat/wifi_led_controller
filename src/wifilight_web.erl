@@ -21,41 +21,32 @@ stop() ->
     mochiweb_http:stop(?MODULE).
 
 loop(Req, DocRoot) ->
-    Port = 5577,
-    Ip = {192,168,1,23},
 
+    Communicator = whereis(wifilight_communicator),
     "/" ++ Path = Req:get(path),
     try
         case Req:get(method) of
             Method when Method =:= 'GET'; Method =:= 'HEAD' ->
                 case Path of
+                    "register" ->
+                        Hint = "ip address",
+                        {ok, HTMLOutput} = register_dtl:render([{format_hint, Hint}]),
+                        Req:respond({200, [{"Content-Type", "text/html"}], HTMLOutput});
                     "red" ->
-                        {ok, Socket} = gen_tcp:connect(Ip, Port, [binary, {active,true}]),
-                        SetColor = [16#56, 255, 0, 0, 16#AA],
-                        gen_tcp:send(Socket, SetColor),
-                        gen_tcp:close(Socket),
+                        wifilight_communicator:set_color(Communicator, 255, 0, 0),
                         Req:respond({200, [{"Content-Type", "text/plain"}], "ok"});
                     "green" ->
-                        {ok, Socket} = gen_tcp:connect(Ip, Port, [binary, {active,true}]),
-                        SetColor = [16#56, 0, 255, 0, 16#AA],
-                        gen_tcp:send(Socket, SetColor),
-                        gen_tcp:close(Socket),
+                        wifilight_communicator:set_color(Communicator, 0, 255, 0),
                         Req:respond({200, [{"Content-Type", "text/plain"}], "ok"});
                     "blue" ->
-                        {ok, Socket} = gen_tcp:connect(Ip, Port, [binary, {active,true}]),
-                        SetColor = [16#56, 0, 0, 255, 16#AA],
-                        gen_tcp:send(Socket, SetColor),
-                        gen_tcp:close(Socket),
+                        wifilight_communicator:set_color(Communicator, 0, 0, 255),
                         Req:respond({200, [{"Content-Type", "text/plain"}], "ok"});
                     "color" ->
-                        {ok, Socket} = gen_tcp:connect(Ip, Port, [binary, {active,true}]),
                         QueryStringData = Req:parse_qs(),
                         Red = list_to_integer(proplists:get_value("r", QueryStringData, "0")),
                         Green = list_to_integer(proplists:get_value("g", QueryStringData, "0")),
                         Blue = list_to_integer(proplists:get_value("b", QueryStringData, "0")),
-                        SetColor = [16#56, Red, Green, Blue, 16#AA],
-                        gen_tcp:send(Socket, SetColor),
-                        gen_tcp:close(Socket),
+                        wifilight_communicator:set_color(Communicator, Red, Green, Blue),
                         Req:respond({200, [{"Content-Type", "text/plain"}], "ok"});
                     "hello" ->
                         QueryStringData = Req:parse_qs(),
