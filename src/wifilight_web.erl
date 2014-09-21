@@ -61,7 +61,8 @@ loop(Req, DocRoot) ->
                         Green = list_to_integer(proplists:get_value("g", QueryStringData, "0")),
                         Blue = list_to_integer(proplists:get_value("b", QueryStringData, "0")),
                         Duration = list_to_integer(proplists:get_value("d", QueryStringData, "3000")),
-                        wifilight_player:set_transition(Player, Red, Green, Blue, Duration),
+                        Interval = list_to_integer(proplists:get_value("i", QueryStringData, "200")),
+                        wifilight_player:set_transition(Player, Red, Green, Blue, Duration, Interval),
                         Req:respond({200, [{"Content-Type", "text/plain"}], "ok"});
                     _ ->
                         Req:serve_file(Path, DocRoot)
