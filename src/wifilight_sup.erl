@@ -43,7 +43,8 @@ upgrade() ->
 init([]) ->
     Web = web_specs(wifilight_web, 8080),
     Communicator = communicator_specs(wifilight_communicator),
-    Processes = [Web, Communicator],
+    Player = player_specs(wifilight_player),
+    Processes = [Web, Communicator, Player],
     Strategy = {one_for_one, 10, 10},
     {ok,
      {Strategy, lists:flatten(Processes)}}.
@@ -59,7 +60,11 @@ web_specs(Mod, Port) ->
 communicator_specs(Mod) ->
     % Ip, Port should come from config
     Port = 5577,
-    Ip = {192,168,1,23},
-    %Ip = {127,0,0,1},
+    %Ip = {192,168,1,23},
+    Ip = {127,0,0,1},
     {Mod, {Mod, start, [Ip, Port]}, 
+     permanent,  5000, worker, dynamic}.
+
+player_specs(Mod) ->
+    {Mod, {Mod, start, []}, 
      permanent,  5000, worker, dynamic}.

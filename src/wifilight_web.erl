@@ -23,6 +23,7 @@ stop() ->
 loop(Req, DocRoot) ->
 
     Communicator = whereis(wifilight_communicator),
+    Player = whereis(wifilight_player),
     "/" ++ Path = Req:get(path),
     try
         case Req:get(method) of
@@ -47,18 +48,21 @@ loop(Req, DocRoot) ->
                     "blue" ->
                         wifilight_communicator:set_color(Communicator, 0, 0, 255),
                         Req:respond({200, [{"Content-Type", "text/plain"}], "ok"});
-                    "color" ->
+                    "set_color" ->
                         QueryStringData = Req:parse_qs(),
                         Red = list_to_integer(proplists:get_value("r", QueryStringData, "0")),
                         Green = list_to_integer(proplists:get_value("g", QueryStringData, "0")),
                         Blue = list_to_integer(proplists:get_value("b", QueryStringData, "0")),
                         wifilight_communicator:set_color(Communicator, Red, Green, Blue),
                         Req:respond({200, [{"Content-Type", "text/plain"}], "ok"});
-                    "hello" ->
+                    "set_transition" ->
                         QueryStringData = Req:parse_qs(),
-                        Username = proplists:get_value("username", QueryStringData, "Anonymous"),
-                        Req:respond({200, [{"Content-Type", "text/plain"}],
-                                            "Hello " ++ Username ++ "!\n"});
+                        Red = list_to_integer(proplists:get_value("r", QueryStringData, "0")),
+                        Green = list_to_integer(proplists:get_value("g", QueryStringData, "0")),
+                        Blue = list_to_integer(proplists:get_value("b", QueryStringData, "0")),
+                        Duration = list_to_integer(proplists:get_value("d", QueryStringData, "3000")),
+                        wifilight_player:set_transition(Player, Red, Green, Blue, Duration),
+                        Req:respond({200, [{"Content-Type", "text/plain"}], "ok"});
                     _ ->
                         Req:serve_file(Path, DocRoot)
                 end;

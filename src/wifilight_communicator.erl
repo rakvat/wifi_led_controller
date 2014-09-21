@@ -1,11 +1,11 @@
 -module(wifilight_communicator).
 -behavior(gen_server).
 
-% for supervisor
--export([start/2, stop/0]).
-
 % external api
 -export([set_color/4]).
+
+% for supervisor
+-export([start/2, stop/0]).
 
 % for gen_server
 -export([init/1, handle_call/3, handle_cast/2,
@@ -13,7 +13,6 @@
 
 -record(state, {socket}).
 
-%% External API
 
 start(Ip, Port) ->
     erlang:display("start communicator"),
@@ -46,11 +45,13 @@ handle_call(_Message, _From, State) ->
 handle_cast(_Message, State) ->
     {noreply, State}.
 
-handle_info(_Message, State) ->
+% e.g. sent from player
+handle_info(Message, State) ->
+    handle_call(Message, self(), State),
     {noreply, State}.
 
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
 
-terminate(normal, _State) ->
+terminate(_Reason, _State) ->
     ok.
