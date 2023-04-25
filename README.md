@@ -1,3 +1,6 @@
+Deprecated. See https://github.com/rakvat/flask-react-led-control for a newer version.
+
+
 erlang mochiweb wifi led strip controller
 ==
 
